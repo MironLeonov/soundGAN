@@ -1,0 +1,12 @@
+class VideoHyperParams:
+    FRAME_WIDTH = 224
+    FRAME_HEIGHT = 224
+    NUMBER_OF_FRAMES = 215
+    NUMBER_OF_CONVOLUTION_LAYERS = 3
+    EMBENDING_DIM = 500
+    FPS = '21.5'
+
+
+class AudioHyperParams:
+    SAMPLING_RATE = '22050'
+    MEL_SAMPLES = 860
