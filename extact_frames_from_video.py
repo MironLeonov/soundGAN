@@ -34,5 +34,3 @@ if __name__ == '__main__':
         p.map(partial(extract_frames, output_dir=OUTPUT_DIR,
                     width=VideoHyperParams.FRAME_WIDTH, height=VideoHyperParams.FRAME_HEIGHT), video_paths)
 
-    # extract_frames(video_paths[0], OUTPUT_DIR, HyperParams.FRAME_WIDTH, HyperParams.FRAME_HEIGHT)
-

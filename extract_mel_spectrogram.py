@@ -1,33 +1,35 @@
 import numpy as np
 import os
 import librosa
-import argparse
 import os.path as P
 from multiprocessing import Pool
 from functools import partial
 from glob import glob
 from params import AudioHyperParams
 
-mel_basis = librosa.filters.mel(int(AudioHyperParams.SAMPLING_RATE), n_fft=1024, fmin=125, fmax=7600, n_mels=80)
 
-
-def get_spectrogram(audio_path, save_dir, length):
+def get_spectrogram(audio_path, save_dir):
     wav, _ = librosa.load(audio_path, sr=None)
+    length = AudioHyperParams.SIGNAL_LENGTH
     y = np.zeros(length)
     if wav.shape[0] < length:
         y[:len(wav)] = wav
     else:
         y = wav[:length]
-    spectrogram = np.abs(librosa.stft(y, n_fft=1024, hop_length=256))
-    mel_spec = np.dot(mel_basis, spectrogram)
-    mel_spec = 20 * np.log10(np.maximum(1e-5, mel_spec)) - 20
-    mel_spec = np.clip((mel_spec + 100) / 100, 0, 1.0)
-    print(mel_spec.shape)
-    mel_spec = mel_spec[:, :860]
-    os.makedirs(save_dir, exist_ok=True)
+
+    mel_spectrogram = librosa.feature.melspectrogram(y, sr=int(AudioHyperParams.SAMPLING_RATE),
+                                                     n_fft=int(AudioHyperParams.FRAME_SIZE),
+                                                     hop_length=int(AudioHyperParams.FRAME_SIZE / 4),
+                                                     n_mels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS))
+
+    print(mel_spectrogram.shape)
+
+    log_mel_spectrogram = librosa.power_to_db(mel_spectrogram)
+
+    finally_mel_spectrogram = log_mel_spectrogram[:, :AudioHyperParams.MEL_SAMPLES]
     audio_name = os.path.basename(audio_path).split('.')[0]
-    np.save(P.join(save_dir, audio_name + "_mel.npy"), mel_spec)
-    np.save(P.join(save_dir, audio_name + "_audio.npy"), y)
+    os.makedirs(P.join(save_dir, audio_name), exist_ok=True)
+    np.save(P.join(save_dir, audio_name, "mel.npy"), finally_mel_spectrogram)
 
 
 if __name__ == '__main__':
@@ -38,4 +40,4 @@ if __name__ == '__main__':
     audio_paths.sort()
 
     with Pool(1) as p:
-        p.map(partial(get_spectrogram, save_dir=OUTPUT_DIR, length=int(AudioHyperParams.SAMPLING_RATE)), audio_paths)
+        p.map(partial(get_spectrogram, save_dir=OUTPUT_DIR), audio_paths)

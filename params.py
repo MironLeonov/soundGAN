@@ -9,4 +9,8 @@ class VideoHyperParams:
 
 class AudioHyperParams:
     SAMPLING_RATE = '22050'
-    MEL_SAMPLES = 860
+    MEL_SAMPLES = 430  # temporal bins of audio representation
+    SIGNAL_LENGTH = 220500  # Length in samples. It's SR (22050 samples per second) multiply by audio duration (10 seconds)
+    NUMBER_OF_MEL_BANDS = 80
+    FRAME_SIZE = 2048  # Frame size for STFT
+    EMBENDING_DIM = 500

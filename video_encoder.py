@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torchvision import models
 
 from params import VideoHyperParams
@@ -12,10 +11,10 @@ def init_weights(m):
         m.bias.data.fill_(0.01)
 
 
-class Encoder(nn.Module):
+class VideoEncoder(nn.Module):
 
     def __init__(self):
-        super(Encoder, self).__init__()
+        super(VideoEncoder, self).__init__()
 
         self.resnet = models.resnet18(pretrained=True)
 
@@ -38,7 +37,7 @@ class Encoder(nn.Module):
                               batch_first=True, bidirectional=True)
 
         self.BiLSTM_proj = nn.Linear(in_features=int(VideoHyperParams.EMBENDING_DIM),
-                                     out_features=int(VideoHyperParams.EMBENDING_DIM / 2))
+                                     out_features=int(VideoHyperParams.EMBENDING_DIM))
 
     def forward(self, images):
         batch_size, numbers_of_frames, c, h, w = images.shape
@@ -47,13 +46,16 @@ class Encoder(nn.Module):
         x = self.resnet(x)
         x = self.conv_layers(x)
 
-        out, (hn, cn) = self.BiLSTM(x)
+        res, (hn, cn) = self.BiLSTM(x)
 
         for i in range(1, numbers_of_frames):
             x = images[:, i]
             x = self.resnet(x)
             x = self.conv_layers(x)
             out, (hn, cn) = self.BiLSTM(x, (hn, cn))
+            res = torch.cat([res, out], dim=0)
 
-        out = self.BiLSTM_proj(out)
-        return out
+        res = self.BiLSTM_proj(res)
+        res = res.transpose(0, 1)
+
+        return res
