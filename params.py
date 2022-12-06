@@ -14,3 +14,11 @@ class AudioHyperParams:
     NUMBER_OF_MEL_BANDS = 80
     FRAME_SIZE = 2048  # Frame size for STFT
     EMBENDING_DIM = 500
+
+
+class TrainParams:
+    LEARNING_RATE = 0.0002
+    EPOCHS = 1
+    BETA1 = 0.5
+    ADDITIONAL_LOSS_COEFF = 1
+    BATCH_SIZE = 1

@@ -9,14 +9,17 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
 
         self.frames_conv = nn.Sequential(
-            nn.Conv1d(in_channels=int(VideoHyperParams.EMBENDING_DIM),
-                      out_channels=int(VideoHyperParams.EMBENDING_DIM / 2),
-                      kernel_size=2, stride=1, padding=1),
-            nn.ReLU(True),
-            nn.Conv1d(in_channels=int(VideoHyperParams.EMBENDING_DIM / 2),
+            nn.Conv3d(in_channels=int(AudioHyperParams.MEL_SAMPLES / 2),
+                      out_channels=1,
+                      kernel_size=3, stride=1),
+        )
+        self.frames_post_conv = nn.Sequential(
+            nn.Conv1d(in_channels=222,
                       out_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
-                      kernel_size=2, stride=1),
-            nn.ReLU(True)
+                      kernel_size=5, stride=1),
+            nn.Conv1d(in_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
+                      out_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
+                      kernel_size=4, stride=1)
         )
 
         self.mel_conv = nn.Conv1d(int(AudioHyperParams.NUMBER_OF_MEL_BANDS), int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
@@ -43,12 +46,14 @@ class Discriminator(nn.Module):
             nn.Sigmoid()
         )
 
-    def forward(self, mel_spec, frames):
+    def forward(self, frames, mel_spec):
+        mel_spec = mel_spec.squeeze() # remove batch, not working with diff size
         mel = self.mel_conv(mel_spec)
         frames = self.frames_conv(frames)
+        frames = frames.squeeze()
+        frames = self.frames_post_conv(frames)
         concat = torch.stack([frames, mel], dim=0)
         concat = self.down_sampling(concat)
         out = concat.squeeze()
         out = self.output(out)
-
         return out

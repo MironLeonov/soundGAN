@@ -9,7 +9,10 @@ class AudioEncoder(nn.Module):
         super(AudioEncoder, self).__init__()
         self.BiLSTM = nn.LSTM(int(AudioHyperParams.NUMBER_OF_MEL_BANDS), int(AudioHyperParams.EMBENDING_DIM / 2), 2,
                               batch_first=True, bidirectional=True)
+
         self.BiLSTM_proj = nn.Linear(int(AudioHyperParams.MEL_SAMPLES), int(VideoHyperParams.NUMBER_OF_FRAMES))
+
+        self.zeros = nn.Dropout(0.5)  # ???
 
     def forward(self, spec):
         batch_size, numbers_of_mels, number_of_frames = spec.shape
@@ -25,5 +28,6 @@ class AudioEncoder(nn.Module):
 
         res = res.transpose(0, 1)
         res = self.BiLSTM_proj(res)
+        res = self.zeros(res)
 
         return res
