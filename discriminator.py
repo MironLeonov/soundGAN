@@ -17,9 +17,11 @@ class Discriminator(nn.Module):
             nn.Conv1d(in_channels=222,
                       out_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
                       kernel_size=5, stride=1),
+            nn.ReLU(True),
             nn.Conv1d(in_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
                       out_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
-                      kernel_size=4, stride=1)
+                      kernel_size=4, stride=1),
+            nn.ReLU(True)
         )
 
         self.mel_conv = nn.Conv1d(int(AudioHyperParams.NUMBER_OF_MEL_BANDS), int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
