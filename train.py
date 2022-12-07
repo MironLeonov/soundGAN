@@ -11,7 +11,7 @@ from main_generator import MainGenerator
 
 from params import TrainParams
 
-device = torch.device('cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 G = MainGenerator().to(device)
 D = Discriminator().to(device)
