@@ -156,3 +156,4 @@ runs/
 
 #scores
 *.txt
+checkpoints/

@@ -27,6 +27,7 @@ class Generator(nn.Module):
             nn.ConvTranspose1d(in_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
                                out_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
                                kernel_size=2, stride=2),
+            nn.ReLU(True),
         )
 
     def forward(self, x):

@@ -20,5 +20,5 @@ class TrainParams:
     LEARNING_RATE = 0.0002
     EPOCHS = 1
     BETA1 = 0.5
-    ADDITIONAL_LOSS_COEFF = 1
+    ADDITIONAL_LOSS_COEFF = 0.001
     BATCH_SIZE = 1

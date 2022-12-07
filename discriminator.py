@@ -47,7 +47,6 @@ class Discriminator(nn.Module):
         )
 
     def forward(self, frames, mel_spec):
-        mel_spec = mel_spec.squeeze() # remove batch, not working with diff size
         mel = self.mel_conv(mel_spec)
         frames = self.frames_conv(frames)
         frames = frames.squeeze()
