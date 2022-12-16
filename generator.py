@@ -1,5 +1,12 @@
 import torch.nn as nn
+import torch
 from params import AudioHyperParams
+
+
+def init_weights(m):
+    if isinstance(m, nn.Conv1d):
+        torch.nn.init.xavier_uniform(m.weight)
+        m.bias.data.fill_(0.01)
 
 
 class Generator(nn.Module):
@@ -7,32 +14,40 @@ class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
 
-        self.conv2d = nn.Sequential(
-            nn.Conv2d(in_channels=int(AudioHyperParams.EMBENDING_DIM),
-                      out_channels=int(AudioHyperParams.EMBENDING_DIM / 2),
-                      kernel_size=2, stride=2, padding=1),
-            nn.ReLU(True),
-            nn.Conv2d(in_channels=int(AudioHyperParams.EMBENDING_DIM / 2),
-                      out_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
-                      kernel_size=2, stride=1),
-            nn.ReLU(True)
+        self.conv1d_fisrt = nn.Sequential(
+            nn.Conv1d(in_channels=int(AudioHyperParams.EMBENDING_DIM),
+                      out_channels=125,
+                      kernel_size=3),
+            nn.BatchNorm1d(125),
+            nn.LeakyReLU(True),
+
+            nn.Conv1d(in_channels=125,
+                      out_channels=80,
+                      kernel_size=3),
+            nn.BatchNorm1d(80),
+            nn.LeakyReLU(True)
         )
 
-        self.conv1d_transpose = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
-                               out_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
-                               kernel_size=5, stride=2, padding=1),
-            nn.BatchNorm1d(int(AudioHyperParams.MEL_SAMPLES / 2)),
-            nn.ReLU(True),
-            nn.ConvTranspose1d(in_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
-                               out_channels=int(AudioHyperParams.NUMBER_OF_MEL_BANDS),
-                               kernel_size=2, stride=2),
-            nn.ReLU(True),
+        self.conv1d_fisrt.apply(init_weights)
+
+        self.conv1d_second = nn.Sequential(
+            nn.Conv1d(in_channels=588,
+                      out_channels=int(AudioHyperParams.MEL_SAMPLES),
+                      kernel_size=3, padding=1),
+            nn.LeakyReLU(True),
+
+            nn.Conv1d(in_channels=int(AudioHyperParams.MEL_SAMPLES),
+                      out_channels=int(AudioHyperParams.MEL_SAMPLES),
+                      kernel_size=3, padding=1),
         )
+
+        self.conv1d_second.apply(init_weights)
 
     def forward(self, x):
-        out = self.conv2d(x)
-        out = out.squeeze()
-        out = self.conv1d_transpose(out)
+        x = self.conv1d_fisrt(x)
+        x = x.transpose(1, 2)
+
+        out = self.conv1d_second(x)
+        out = out.transpose(1, 2)
 
         return out

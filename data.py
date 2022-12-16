@@ -51,7 +51,6 @@ class VideoDataset(Dataset):
         mel_path = glob(audio_dir + "/*.npy")
 
         assert len(mel_path) == 1
-
         mel_spec = np.load(mel_path[0])
 
         if mel_spec.shape[1] < AudioHyperParams.MEL_SAMPLES:
@@ -61,6 +60,8 @@ class VideoDataset(Dataset):
             mel_spec_padded = mel_spec[:, 0:AudioHyperParams.MEL_SAMPLES]
 
         mel_spec_padded = torch.from_numpy(mel_spec_padded).float()
+
+        mel_spec_padded = (mel_spec_padded - mel_spec_padded.min()) / (mel_spec_padded.max() - mel_spec_padded.min())
 
         return mel_spec_padded
 

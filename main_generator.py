@@ -5,8 +5,6 @@ from video_encoder import VideoEncoder
 from audio_encoder import AudioEncoder
 from generator import Generator
 
-from params import AudioHyperParams
-
 
 class MainGenerator(nn.Module):
     def __init__(self):
@@ -21,8 +19,8 @@ class MainGenerator(nn.Module):
         if self.training:
             a_encoded = self.a_encoder(audio)
         else:
-            a_encoded = torch.zeros(int(AudioHyperParams.EMBENDING_DIM), int(AudioHyperParams.MEL_SAMPLES / 2))
-        data_for_gen = torch.stack([v_encoded, a_encoded], dim=2)
+            a_encoded = self.a_encoder(audio * 0)
+        data_for_gen = torch.cat([v_encoded, a_encoded], dim=2)
         out = self.generator(data_for_gen)
 
         return out

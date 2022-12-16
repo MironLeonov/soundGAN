@@ -28,7 +28,7 @@ def pipline(video_path, output_dir, fps, sr, duration_target):
     align_video_dir = P.join(output_dir, "videos_algin")
     os.makedirs(align_video_dir, exist_ok=True)
 
-    duration_second = ffmpeg.probe(f'converted_data/hammer/audio_ori/{audio_name}')['streams'][0]['duration']
+    duration_second = 10
 
     os.system(
         "ffmpeg -ss 0 -t {} -i {} -loglevel error -c:v libx264 -c:a aac -strict experimental -b:a 98k -y {}".format(

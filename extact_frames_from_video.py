@@ -17,6 +17,7 @@ def extract_frames(video_path, output_dir, width, height):
         reg, img = video.read()
         if not reg:
             break
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         img = cv2.resize(img, (width, height))
         cv2.imwrite(P.join(save_dir, f"img_{num:05d}.jpg"), img)
         num += 1
